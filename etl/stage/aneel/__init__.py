@@ -1,0 +1,1 @@
+from .stg_aneel_empreendimento_geracao_distribuida import StageAneelEmpreendimentoGeracaoDistribuida
