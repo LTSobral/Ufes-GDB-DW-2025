@@ -203,10 +203,9 @@ class Search:
         """
         while True:
             response = self.page()
-            yield response
             new_offset = self._get_offset(response)
 
-            # Para a iteração se não houver um novo offset ou se o offset for o mesmo (fim da paginação)
             if new_offset is None or new_offset == self.next:
                 break
             self.next = new_offset
+            yield response

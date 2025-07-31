@@ -121,8 +121,8 @@ class Base:
         self.before()
         for self.page in self.search.iterpage():
             self.extract()
-            self.load()
-
+            if self.value_load:
+                self.load()
 
 class TemplateBase(Base):
     """Classe base abstrata (template) para a criação de processadores de dados específicos.
