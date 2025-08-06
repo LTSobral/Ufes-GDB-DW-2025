@@ -78,6 +78,10 @@ class Base:
         """
         self.conn = self.conn_output.connect()
         db = self.conn[self.database]
+
+        if self.collection in db.list_collection_names():
+            db[self.collection].drop()
+
         self._collection = db[self.collection]
 
         self.search = _Search(self.resource, self.chunksize)
@@ -121,8 +125,7 @@ class Base:
         self.before()
         for self.page in self.search.iterpage():
             self.extract()
-            if self.value_load:
-                self.load()
+            self.load()
 
 class TemplateBase(Base):
     """Classe base abstrata (template) para a criação de processadores de dados específicos.

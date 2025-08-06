@@ -7,7 +7,11 @@ from src.airflow.config.pool import Pool as _Pool
 from src.airflow.config.task import Task as _ConfigTask
 
 from etl.stage.aneel import (
-    StageAneelEmpreendimentoGeracaoDistribuida
+    StageAneelEmpreendimentoGeracaoDistribuida,
+    StageAneelEGDInformacoesTecnicasEolica,
+    StageAneelEGDInformacoesTecnicasFotovoltaica,
+    StageAneelEGDInformacoesTecnicasHidreletrica,
+    StageAneelEGDInformacoesTecnicasTermeletrica,
 )
 
 
@@ -19,6 +23,10 @@ class StageAneelTasks(_Tasks):
     ALL_TASKS = {
         Config: [
             StageAneelEmpreendimentoGeracaoDistribuida,
+            StageAneelEGDInformacoesTecnicasEolica,
+            StageAneelEGDInformacoesTecnicasFotovoltaica,
+            StageAneelEGDInformacoesTecnicasHidreletrica,
+            StageAneelEGDInformacoesTecnicasTermeletrica,
         ]
     }
 

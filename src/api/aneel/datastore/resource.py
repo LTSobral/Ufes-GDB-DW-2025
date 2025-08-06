@@ -13,17 +13,16 @@ class Resource:
     ID: str
 
 class EmpreendimentoGeracaoDistribuida(Resource):
-    """
-    Representa um recurso de empreendimento de geração distribuída.
-
-    Esta classe herda de `Resource` e define um tipo específico de empreendimento
-    de geração distribuída com um identificador único e constante (UUID v4)
-    associado a ele.
-
-    Atributos:
-        ID (str): O identificador UUID v4 constante para este tipo de recurso
-                  de empreendimento de geração distribuída.
-                  Valor: "b1bd71e7-d0ad-4214-9053-cbd58e9564a7"
-    """
     ID = "b1bd71e7-d0ad-4214-9053-cbd58e9564a7"
 
+class EGDInformacoesTecnicasFotovoltaica(Resource):
+    ID = "49fa9ca0-f609-4ae3-a6f7-b97bd0945a3a"
+
+class EGDInformacoesTecnicasEolica(Resource):
+    ID = "5f903d78-25ae-4a3f-a2bd-9a93351c59fb"
+
+class EGDInformacoesTecnicasHidreletrica(Resource):
+    ID = "c189442a-18f0-44eb-9c89-3b48147a4d65"
+
+class EGDInformacoesTecnicasTermeletrica(Resource):
+    ID = "bd1d3783-b389-49d8-a828-a56e193d0671"
