@@ -204,8 +204,9 @@ class Search:
         while True:
             response = self.page()
             new_offset = self._get_offset(response)
-
-            if new_offset is None or new_offset == self.next:
-                break
             self.next = new_offset
+
+            if not response.json().get('result', {'records': []}).get('records'):
+                break
+
             yield response
