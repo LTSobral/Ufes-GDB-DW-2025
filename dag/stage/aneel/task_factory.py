@@ -46,7 +46,6 @@ class TaskFactory:
         """
         self.stage = stage
 
-        self.deploy = True
         self.pool = config.POOL
         self.retries = config.RETRIES
         self.retry_delay = config.RETRY_DELAY
