@@ -1,5 +1,3 @@
-from typing import Callable as _Callable
-
 # Importações de módulos internos/bibliotecas específicas do projeto
 from src.airflow.config.connection import Connection as _Connection
 from src.airflow.factory.task_factory import TaskFactory as _TaskFactory
