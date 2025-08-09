@@ -1,7 +1,7 @@
 services:
   mongo:
     container_name: mongodb
-    image: mongo
+    image: mongo:7.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}

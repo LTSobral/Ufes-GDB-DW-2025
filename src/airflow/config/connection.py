@@ -17,7 +17,7 @@ class Connection:
 
     class Development:
         """Contém as configurações de conexão para o ambiente de Desenvolvimento."""
-        CONN_STAGE_MONGODB = "conn_stage_mongodb"
+        CONN_STAGE_MONGODB = "conn_stage__dev__mongodb"
         """String de conexão para o banco de dados MongoDB de stage (desenvolvimento)."""
     
     def __init__(self, deploy: bool = True):

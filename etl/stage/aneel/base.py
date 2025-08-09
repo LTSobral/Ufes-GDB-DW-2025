@@ -99,7 +99,7 @@ class Base:
             será uma lista vazia, evitando erros.
         """
         data = self.page.json()
-        self.value_load = data.get('result', {'records': []}).get('records')
+        self.value_load = data.get('result', {}).get('records', [])
 
     def load(self) -> None:
         """Carrega os dados extraídos na coleção MongoDB configurada.
@@ -123,7 +123,8 @@ class Base:
         os dados extraídos.
         """
         self.before()
-        for self.page in self.search.iterpage():
+        for page in self.search.iterpage():
+            self.page = page
             self.extract()
             self.load()
 
