@@ -34,6 +34,9 @@ class MongoDB(_Base):
             _MongoDB: Uma instância do cliente MongoDB (da importação `from ...connection.mongodb import MongoDB`),
                       pronto para ser usado para operações de banco de dados.
         """
+        if self.conn.conn_type != 'mongo':
+            raise Exception(f'Conexão errada {self.conn.conn_type} {self.conn.conn_id}')
+
         mongodb = _MongoDB(
             host=self.conn.host,
             database=self.conn.schema,  # 'schema' geralmente mapeia para 'database' no MongoDB
