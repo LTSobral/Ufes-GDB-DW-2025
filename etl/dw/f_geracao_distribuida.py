@@ -132,14 +132,14 @@ class FactGeracaoDistribuida:
                     "qt_modulos": 1,
                     "qt_empreendimentos": 1,
                     "cd_cidade": '$_id.cd_cidade',
-                    "no_classe_consumo": {"$toUpper": '$_id.no_classe_consumo'},
-                    "cd_grupo_tarifario": {"$toUpper": '$_id.cd_grupo_tarifario'},
+                    "no_classe_consumo": '$_id.no_classe_consumo',
+                    "cd_grupo_tarifario": '$_id.cd_grupo_tarifario',
                     "nu_competencia": '$_id.nu_competencia',
-                    "cd_empresa_distribuidora": {"$toUpper": '$_id.cd_empresa_distribuidora'},
-                    "cd_tipo": {"$toUpper": '$_id.cd_tipo'},
-                    "cd_tipo_consumidor": {"$toUpper": '$_id.cd_tipo_consumidor'},
-                    "no_fonte": {"$toUpper": '$_id.no_fonte'},
-                    "no_porte": {"$toUpper": '$_id.no_porte'},
+                    "cd_empresa_distribuidora": '$_id.cd_empresa_distribuidora',
+                    "cd_tipo": '$_id.cd_tipo',
+                    "cd_tipo_consumidor": '$_id.cd_tipo_consumidor',
+                    "no_fonte": '$_id.no_fonte',
+                    "no_porte": '$_id.no_porte',
                     "nu_competencia_conexao": '$_id.nu_competencia_conexao',
                 }
             },
@@ -164,7 +164,15 @@ class FactGeracaoDistribuida:
         yield _pd.DataFrame(_list)
 
     def treat(self):
-        df_extract = self.df_extract
+        df_extract = self.df_extract.assign(
+            no_classe_consumo=lambda x: x.no_classe_consumo.str.upper(),
+            cd_grupo_tarifario=lambda x: x.cd_grupo_tarifario.str.upper(),
+            cd_empresa_distribuidora=lambda x: x.cd_empresa_distribuidora.str.upper(),
+            cd_tipo=lambda x: x.cd_tipo.str.upper(),
+            cd_tipo_consumidor=lambda x: x.cd_tipo_consumidor.str.upper(),
+            no_fonte=lambda x: x.no_fonte.str.upper(),
+            no_porte=lambda x: x.no_porte.str.upper(),
+        )
 
         sql = f"""--sql
             SELECT 
@@ -177,6 +185,7 @@ class FactGeracaoDistribuida:
                 , COALESCE(comp_conexao.sk_competencia, '-3') sk_competencia_instalacao
                 , COALESCE(flt.vl_potencia_instalada, 0) vl_potencia_instalada
                 , COALESCE(flt.qt_modulos, 0) qt_modulos
+                , COALESCE(flt.qt_empreendimentos, 0) qt_empreendimentos
             FROM df_extract flt
             {DimensionCidade.join('flt')}
             {DimensionGrupoTarifario.join('flt')}
