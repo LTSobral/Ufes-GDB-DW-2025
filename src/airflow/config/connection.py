@@ -14,11 +14,13 @@ class Connection:
         """Contém as configurações de conexão para o ambiente de Produção."""
         CONN_STAGE_MONGODB = "conn_stage_mongodb"
         """String de conexão para o banco de dados MongoDB de stage (produção)."""
+        CONN_DW = "conn_dw"
 
     class Development:
         """Contém as configurações de conexão para o ambiente de Desenvolvimento."""
         CONN_STAGE_MONGODB = "conn_stage__dev__mongodb"
         """String de conexão para o banco de dados MongoDB de stage (desenvolvimento)."""
+        CONN_DW = "conn_dw__dev"
     
     def __init__(self, deploy: bool = True):
         """Inicializa uma nova instância da classe Connection.
@@ -34,4 +36,5 @@ class Connection:
         self.config = self.Production if deploy else self.Development
 
         self.conn_stage_mongodb = self.config.CONN_STAGE_MONGODB
+        self.conn_dw = self.config.CONN_DW
 

@@ -12,6 +12,7 @@ from etl.stage.aneel import (
     StageAneelEGDInformacoesTecnicasFotovoltaica,
     StageAneelEGDInformacoesTecnicasHidreletrica,
     StageAneelEGDInformacoesTecnicasTermeletrica,
+    StageAneelEGDInformacoesTecnicas,
 )
 
 
@@ -27,6 +28,7 @@ class StageAneelTasks(_Tasks):
             StageAneelEGDInformacoesTecnicasFotovoltaica,
             StageAneelEGDInformacoesTecnicasHidreletrica,
             StageAneelEGDInformacoesTecnicasTermeletrica,
+            StageAneelEGDInformacoesTecnicas,
         ]
     }
 
@@ -36,4 +38,11 @@ class StageAneelTasks(_Tasks):
         for s in v
     ]
 
-    DEPENDENCIES = {}
+    DEPENDENCIES = {
+        'stg_aneel_egd_informacoes_tecnicas': [
+            'stg_aneel_egd_informacoes_tecnicas_eolica',
+            'stg_aneel_egd_informacoes_tecnicas_fotovoltaica',
+            'stg_aneel_egd_informacoes_tecnicas_hidreletrica',
+            'stg_aneel_egd_informacoes_tecnicas_termeletrica',
+        ]
+    }
