@@ -140,3 +140,19 @@ CREATE TABLE dw.f_geracao_distribuida (
     qt_empreendimentos INTEGER,
     dt_atualizacao TIMESTAMP
 );
+
+----------------------------------------------------------------------------------------------------
+
+CREATE TABLE dw.f_historico_geracao_distribuida (
+    sk_tipo_consumidor INTEGER NOT NULL,
+    sk_grupo_tarifario INTEGER NOT NULL,
+    sk_empresa_distribuidora INTEGER NOT NULL,
+    sk_cidade INTEGER NOT NULL,
+    sk_geracao INTEGER NOT NULL,
+    sk_data INTEGER NOT NULL,
+    vl_potencia_instalada DOUBLE PRECISION,
+    qt_modulos INTEGER,
+    qt_empreendimentos INTEGER,
+    dt_copia DATE,
+    dt_atualizacao TIMESTAMP
+);

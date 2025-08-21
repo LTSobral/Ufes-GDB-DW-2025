@@ -38,7 +38,7 @@ class PostgreSQL(_Base):
             PORT=self.port,
             DATABASE=self.database
         )
-        print(uri)
+
         engine: _Engine = _create_engine(uri, future=False)
 
         return engine

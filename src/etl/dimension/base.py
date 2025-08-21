@@ -10,7 +10,7 @@ from src.etl.utils.types import (
     df_header as _df_header,
     dtypes_columns as _dtypes_columns
 )
-
+from src.etl.utils.log import log as _log
 
 class Base:
     DEFAULT_PATH: _Path = _Path('./source/dim')
@@ -36,25 +36,30 @@ class Base:
         self.dimension: _pd.DataFrame
         self.dt_update = _dt.now(_timezone('America/Sao_Paulo'))
 
+    @_log
     def extract_dimension(self):
         sql = f'--sql SELECT {",".join(self.columns_pk)} FROM {self.schema}.{self.table_name} ;'[5:-1]
         self.df_dimension = _pd.read_sql_query(sql, con=self._conn_output)
 
+    @_log
     def extract(self):
         raise NotImplementedError
 
+    @_log
     def treat(self):
         raise NotImplementedError
 
+    @_log
     def dtypes(self):
         dtypes = _dtypes_columns(self._conn_output, self.table_name, self.schema)
-        print(dtypes)
+
         dtype = {k : v for k, v in dtypes.items() if k in self.df_dimension.columns}
         self.df_dimension = self.df_dimension.astype(dtype)
 
         dtype = {k : v for k, v in dtypes.items() if k in self.df_load.columns}
         self.df_load = self.df_load.astype(dtype)
 
+    @_log
     def set_sk(self):
         if self.df_load.empty:
             raise NotImplementedError
@@ -75,9 +80,11 @@ class Base:
                 _df_header(self._conn_output, self.table_name, self.schema)]
             )
 
+    @_log
     def set_dt(self):
         self.df_load['dt_atualizacao'] = self.dt_update
 
+    @_log
     def load(self):
         df = self.df_load.merge(
             self.df_dimension,
@@ -96,6 +103,7 @@ class Base:
             if_exists='append',
         )
 
+    @_log
     def before_run(self):
         self._conn_output = self.conn_output.connect()
 
@@ -103,6 +111,7 @@ class Base:
     def path(cls):
         return cls.DEFAULT_PATH / f'{cls.TABLE_NAME}.parquet'
 
+    @_log
     def to_parquet(self):
         sql = f'--sql SELECT {",".join(self.columns_pk + [self.column_sk])} FROM {self.schema}.{self.table_name} ;'[5:-1]
         self.df_dimension = _pd.read_sql_query(sql, con=self._conn_output)

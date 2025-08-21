@@ -7,6 +7,7 @@ from pytz import timezone as _timezone
 
 from src.connection.mongodb import MongoDB as _MongoDB
 from src.connection.postgresql import PostgreSQL as _PostgreSQL
+from src.etl.utils.log import log as _log
 
 from .d_cidade import DimensionCidade
 from .d_grupo_tarifario import DimensionGrupoTarifario
@@ -46,6 +47,7 @@ class FactHistoricoGeracaoDistribuida:
         self.geracao = None
         self.dt_update = _dt.now(_timezone('America/Sao_Paulo'))
 
+    @_log
     def extract(self):
         colletion = self._conn_input[self.database][self.table_origin]
 
@@ -61,16 +63,6 @@ class FactHistoricoGeracaoDistribuida:
                             }
                         }
                     },
-                    "nu_competencia": {
-                        "$dateToString": {
-                            "format": "%Y%m",
-                            "date": {
-                                "$dateFromString": {
-                                "dateString": "$DthAtualizaCadastralEmpreend"
-                                }
-                            }
-                        }
-                    }
                 }
             },
             {
@@ -106,13 +98,16 @@ class FactHistoricoGeracaoDistribuida:
                         "cd_tipo": "$SigTipoGeracao",
                         "no_fonte": "$DscFonteGeracao",
                         "no_porte": "$DscPorte",
-                        "cd_tipo_consumidor": "$SigTipoConsumidor"
+                        "cd_tipo_consumidor": "$SigTipoConsumidor",
                     },
                     "vl_potencia_instalada": {
                         "$sum": "$vl_potencia_instalada",
                     },
                     "qt_modulos": {
                         "$sum": "$qt_modulos",
+                    },
+                    "qt_empreendimentos": {
+                        "$sum": 1,
                     }
                 }
             },
@@ -121,19 +116,22 @@ class FactHistoricoGeracaoDistribuida:
                     '_id': 0,
                     "vl_potencia_instalada": 1,
                     "qt_modulos": 1,
+                    "qt_empreendimentos": 1,
                     "cd_cidade": '$_id.cd_cidade',
-                    "no_classe_consumo": {"$toUpper": '$_id.no_classe_consumo'},
-                    "cd_grupo_tarifario": {"$toUpper": '$_id.cd_grupo_tarifario'},
-                    "cd_empresa_distribuidora": {"$toUpper": '$_id.cd_empresa_distribuidora'},
-                    "cd_tipo": {"$toUpper": '$_id.cd_tipo'},
-                    "no_fonte": {"$toUpper": '$_id.no_fonte'},
-                    "no_porte": {"$toUpper": '$_id.no_porte'},
+                    "no_classe_consumo": '$_id.no_classe_consumo',
+                    "cd_grupo_tarifario": '$_id.cd_grupo_tarifario',
+                    "cd_empresa_distribuidora": '$_id.cd_empresa_distribuidora',
+                    "cd_tipo": '$_id.cd_tipo',
+                    "cd_tipo_consumidor": '$_id.cd_tipo_consumidor',
+                    "no_fonte": '$_id.no_fonte',
+                    "no_porte": '$_id.no_porte',
                 }
             },
         ]
 
         self.cursor = colletion.aggregate(pipeline)
 
+    @_log
     def before_run(self):
         self._conn_output = self.conn_output.connect()
         self._conn_input = self.conn_input.connect()
@@ -150,8 +148,17 @@ class FactHistoricoGeracaoDistribuida:
 
         yield _pd.DataFrame(_list)
 
+    @_log
     def treat(self):
-        df_extract = self.df_extract
+        df_extract = self.df_extract.assign(
+            no_classe_consumo=lambda x: x.no_classe_consumo.str.upper(),
+            cd_grupo_tarifario=lambda x: x.cd_grupo_tarifario.str.upper(),
+            cd_empresa_distribuidora=lambda x: x.cd_empresa_distribuidora.str.upper(),
+            cd_tipo=lambda x: x.cd_tipo.str.upper(),
+            cd_tipo_consumidor=lambda x: x.cd_tipo_consumidor.str.upper(),
+            no_fonte=lambda x: x.no_fonte.str.upper(),
+            no_porte=lambda x: x.no_porte.str.upper(),
+        )
         df_extract['dt_copia'] = self.dt_update.date()
 
         sql = f"""--sql
@@ -162,7 +169,7 @@ class FactHistoricoGeracaoDistribuida:
                 , COALESCE(cid.sk_cidade, '-3') sk_cidade
                 , COALESCE(ger.sk_geracao, '-3') sk_geracao
                 , COALESCE(dat.sk_data, '-3') sk_data
-                , COALESCE(flt.vl_potencia_instalada, '-3') vl_potencia_instalada
+                , COALESCE(flt.vl_potencia_instalada, 0) vl_potencia_instalada
                 , COALESCE(flt.qt_modulos, 0) qt_modulos
             FROM df_extract flt
             {DimensionCidade.join('flt')}
@@ -177,6 +184,7 @@ class FactHistoricoGeracaoDistribuida:
     def set_dt(self):
         self.df_load['dt_atualizacao'] = self.dt_update
 
+    @_log
     def load(self):
         self.df_load.to_sql(
             self.table_name,
@@ -186,10 +194,11 @@ class FactHistoricoGeracaoDistribuida:
             if_exists='append',
         )
 
+    @_log
     def delete(self):
         self._conn_output.execute(f'''--sql
             DELETE FROM {self.schema}.{self.table_name} f
-            WHERE f.dt_copia = TO_TIMESTAMP({self.dt_update.strftime('%d/%m/%Y')}, 'dd/mm/yyyy')
+            WHERE f.dt_copia = TO_DATE('{self.dt_update.strftime('%d/%m/%Y')}', 'dd/mm/yyyy')
         ;'''[5:-1])
 
     def run(self):

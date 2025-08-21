@@ -7,6 +7,7 @@ from pytz import timezone as _timezone
 
 from src.connection.mongodb import MongoDB as _MongoDB
 from src.connection.postgresql import PostgreSQL as _PostgreSQL
+from src.etl.utils.log import log as _log
 
 from .d_cidade import DimensionCidade
 from .d_grupo_tarifario import DimensionGrupoTarifario
@@ -46,6 +47,7 @@ class FactGeracaoDistribuida:
         self.geracao = None
         self.dt_update = _dt.now(_timezone('America/Sao_Paulo'))
 
+    @_log
     def extract(self):
         colletion = self._conn_input[self.database][self.table_origin]
 
@@ -147,6 +149,7 @@ class FactGeracaoDistribuida:
 
         self.cursor = colletion.aggregate(pipeline)
 
+    @_log
     def before_run(self):
         self._conn_output = self.conn_output.connect()
         self._conn_input = self.conn_input.connect()
@@ -163,6 +166,7 @@ class FactGeracaoDistribuida:
 
         yield _pd.DataFrame(_list)
 
+    @_log
     def treat(self):
         df_extract = self.df_extract.assign(
             no_classe_consumo=lambda x: x.no_classe_consumo.str.upper(),
@@ -200,6 +204,7 @@ class FactGeracaoDistribuida:
     def set_dt(self):
         self.df_load['dt_atualizacao'] = self.dt_update
 
+    @_log
     def load(self):
         self.df_load.to_sql(
             self.table_name,

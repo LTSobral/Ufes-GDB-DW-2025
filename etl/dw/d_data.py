@@ -19,26 +19,23 @@ class DimensionData(_Base):
 
     def extract(self):
         data_inicio = '2000-01-01'
-        data_fim = (_pd.to_datetime('today') + _pd.DateOffset(years=1)).strftime('%Y-%m-%d')
+        datas = _pd.to_datetime(_pd.date_range(start=data_inicio, periods=7))
 
-        datas_mensais = _pd.date_range(start=data_inicio, end=data_fim, freq='MS')
-
-        self.df_competencia = _pd.DataFrame(datas_mensais, columns=['dt_referencia'])
-
-        
-        self.df_competencia['nu_ano'] = self.df_competencia['dt_referencia'].dt.year
-        self.df_competencia['nu_mes'] = self.df_competencia['dt_referencia'].dt.month
-
-        meses_map = {
-            1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho',
-            7: 'Julho', 8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
+        mapa_mes = {
+            1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril',
+            5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto',
+            9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
         }
-        self.df_competencia['no_mes'] = self.df_competencia['nu_mes'].map(meses_map)
 
-        self.df_competencia['nu_competencia'] = self.df_competencia['dt_referencia'].dt.strftime('%Y%m').astype(int)
-        
-        self.df_competencia['dt_inicio_mes'] = self.df_competencia['dt_referencia']
-        self.df_competencia['dt_fim_mes'] = self.df_competencia['dt_referencia'] + _pd.offsets.MonthEnd(1)
+        dados = {
+            'nu_dia': datas.day,
+            'nu_mes': datas.month,
+            'no_mes': datas.month.map(mapa_mes),
+            'nu_ano': datas.year,
+            'dt_completa': datas.date
+        }
+
+        self.df_load = _pd.DataFrame(dados)
 
 
     def run(self):
@@ -61,8 +58,8 @@ class DimensionData(_Base):
         dt_completa_origin: str='dt_completa',
     ):
         sql = f"""--sql
-            LEFT JOIN '{cls.path().absolute()}' {as_origin}
-                ON {as_origin}.dt_completa = {as_dimension}.{dt_completa_origin}
+            LEFT JOIN '{cls.path().absolute()}' {as_dimension}
+                ON {as_dimension}.dt_completa = {as_origin}.{dt_completa_origin}
         ;"""[5:-1]
 
         return sql

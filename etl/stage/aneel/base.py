@@ -4,6 +4,7 @@ from pymongo import MongoClient as _MongoClient
 from src.api.aneel.datastore.resource import Resource as _Resource
 from src.connection.mongodb import MongoDB as _MongoDB
 from src.api.aneel.datastore.search import Search as _Search
+from src.etl.utils.log import log as _log
 
 
 class Base:
@@ -65,6 +66,7 @@ class Base:
         self.page: _Response
         self.value_load: list[dict]
 
+    @_log
     def before(self) -> None:
         """Prepara a instância da classe antes da execução principal do processo EL.
 
@@ -86,6 +88,7 @@ class Base:
 
         self.search = _Search(self.resource, self.chunksize)
 
+    @_log
     def extract(self) -> None:
         """Extrai os registros de dados da resposta JSON da página atual da API.
 
@@ -101,6 +104,7 @@ class Base:
         data = self.page.json()
         self.value_load = data.get('result', {}).get('records', [])
 
+    @_log
     def load(self) -> None:
         """Carrega os dados extraídos na coleção MongoDB configurada.
 
